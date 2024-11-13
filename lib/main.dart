@@ -23,7 +23,9 @@ class MyApp extends StatelessWidget {
               Icons.photo,
             ],
             builder: (e) {
-              return DragableComponent(e: e);
+              return SizedBox(
+                child: DragableComponent(e: e),
+              );
             },
           ),
         ),
@@ -47,10 +49,7 @@ class _DragableComponentState extends State<DragableComponent> {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-        left: position.dx,
-        top: position.dy,
-        child: Draggable(
+    return Draggable(
             feedback: Container(
               constraints: const BoxConstraints(minWidth: 48),
               height: 48,
@@ -78,7 +77,9 @@ class _DragableComponentState extends State<DragableComponent> {
               setState(() {
                 position = details.offset;
               });
-            }));
+            },
+          );
+       
   }
 }
 
@@ -108,7 +109,7 @@ class _DockState<T> extends State<Dock<T>> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 70,
+      height: 90,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: Colors.black12,

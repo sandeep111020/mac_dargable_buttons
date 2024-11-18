@@ -13,7 +13,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: Center(
+        body: Container(
+          margin: const EdgeInsets.all(10),
+          alignment: Alignment.bottomCenter,
           child: Dock(
             items: const [
               Icons.person,
@@ -23,9 +25,7 @@ class MyApp extends StatelessWidget {
               Icons.photo,
             ],
             builder: (e) {
-              return SizedBox(
-                child: DragableComponent(e: e),
-              );
+              return DragableComponent(e: e);
             },
           ),
         ),
@@ -45,11 +45,32 @@ class DragableComponent extends StatefulWidget {
 }
 
 class _DragableComponentState extends State<DragableComponent> {
-  Offset position = Offset(20.0, 20.0);
+  Offset position = Offset.zero;
+double paddingValue=32;
+GlobalKey _widgetKey = GlobalKey();
 
+@override
+  void initState() {
+    super.initState();
+    // Fetch the position after the widget is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchWidgetPosition();
+    });
+  }
+
+ void _fetchWidgetPosition() {
+    // Get the RenderBox of the widget
+    final RenderBox renderBox =
+        _widgetKey.currentContext?.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+    setState(() {
+      position = offset; // Update the position
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Draggable(
+      key: _widgetKey,
             feedback: Container(
               constraints: const BoxConstraints(minWidth: 48),
               height: 48,
@@ -72,10 +93,25 @@ class _DragableComponentState extends State<DragableComponent> {
               ),
               child: Center(child: Icon(widget.e, color: Colors.white)),
             ),
-            childWhenDragging: Container(),
+            childWhenDragging: Container(
+              margin: EdgeInsets.all(paddingValue),
+            ),
+            onDragUpdate: (details) {
+             double temp = position.dy-details.localPosition.dy;
+              
+              if(temp<40 && temp>-40){
+              setState(() {
+                paddingValue= 40-temp.abs();
+                paddingValue= paddingValue.abs();
+              });
+              }else{
+                paddingValue=10;
+              }
+            },
             onDragEnd: (details) {
               setState(() {
                 position = details.offset;
+                paddingValue=32;
               });
             },
           );
@@ -109,7 +145,7 @@ class _DockState<T> extends State<Dock<T>> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 90,
+      height: 100,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(8),
         color: Colors.black12,
